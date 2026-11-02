@@ -9,3 +9,8 @@ desktop.ini
 
 # Local logs
 *.log
+
+# Deploy keys
+deploy_key*
+
+
