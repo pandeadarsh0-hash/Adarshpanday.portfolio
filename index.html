@@ -737,9 +737,9 @@
                 <span class="form-step-indicator">Direct Connect</span>
               </header>
 
-              <form id="contactForm" class="inquiry-form" novalidate>
-                <!-- Hidden Config for Web3Forms / Formspree Email Forwarding -->
-                <input type="hidden" name="access_key" id="formAccessKey" value="">
+              <form id="contactForm" class="inquiry-form" action="https://api.web3forms.com/submit" method="POST" novalidate>
+                <!-- Hidden Config for Web3Forms Email Forwarding -->
+                <input type="hidden" name="access_key" id="formAccessKey" value="7ac69fe8-457e-4a24-9cdf-741a0567d50d">
                 <input type="hidden" name="subject" value="New Project Inquiry from Portfolio - Adarsh Panday">
                 <input type="hidden" name="from_name" value="Adarsh Panday Portfolio Inquiry">
 

@@ -481,11 +481,14 @@ function initContactForm() {
     submitBtn.innerHTML = `<span>Sending...</span>`;
 
     const accessKeyInput = document.getElementById('formAccessKey');
-    const accessKey = accessKeyInput ? accessKeyInput.value.trim() : '';
+    const accessKey = (accessKeyInput && accessKeyInput.value.trim()) || '7ac69fe8-457e-4a24-9cdf-741a0567d50d';
 
     // If an Access Key (Web3Forms) is provided, send real API POST request
     if (accessKey && accessKey !== 'YOUR_ACCESS_KEY_HERE') {
       const formData = new FormData(form);
+      if (!formData.get('access_key')) {
+        formData.append('access_key', accessKey);
+      }
       formData.append('services', selectedServices.join(', '));
       formData.append('budget', selectedBudget);
 
@@ -501,6 +504,7 @@ function initContactForm() {
         if (data.success) {
           const firstName = nameInput.value.trim().split(' ')[0];
           form.reset();
+          if (accessKeyInput) accessKeyInput.value = accessKey;
           resetPillsAndChips();
           showToast(
             `Message Delivered, ${firstName}!`,
