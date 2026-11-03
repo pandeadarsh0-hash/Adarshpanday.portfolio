@@ -200,6 +200,23 @@ const PROJECTS_DATA = {
       'Brand Cohesion (High-End Corporate Tech Aesthetic & Gradients)'
     ],
     metric: 'AI Commercial // 4K 60 FPS Cut'
+  },
+  'showreel': {
+    id: 'showreel',
+    title: 'Adarsh Panday – Motion Graphics & Dynamic Showreel',
+    client: 'Master Portfolio // Adarsh Panday',
+    category: 'MASTER SHOWREEL // 9:16 VERTICAL CUT',
+    year: '2026',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/gQ494GhoXJI?autoplay=1&rel=0',
+    isVertical: true,
+    description: 'A fast-paced, high-retention vertical showreel demonstrating dynamic vector animations, seamless transitions, kinetic typography, beat-synced cuts, and rhythmic editorial pacing designed to captivate audiences and maximize engagement.',
+    services: [
+      'High-Impact Motion Graphics & 2D Vector Animation',
+      'Kinetic Typography & Rhythmic Visual Storytelling',
+      'Beat-Synced Editorial Cuts & Viral Sound Design',
+      '9:16 Mobile & Social-Optimized Video Deliverables'
+    ],
+    metric: '9:16 Master Showreel // 60 FPS'
   }
 };
 
@@ -211,6 +228,7 @@ function initProjectModal() {
   const playReelBtn = document.getElementById('playReelBtn');
   const heroPlayTrigger = document.getElementById('heroPlayTrigger');
   const modalInquireBtn = document.getElementById('modalInquireBtn');
+  const heroPlayerWrapper = document.getElementById('heroPlayerWrapper');
 
   const modalVideoIframe = document.getElementById('modalVideoIframe');
   const modalTitle = document.getElementById('modalTitle');
@@ -232,6 +250,17 @@ function initProjectModal() {
     if (!data) return;
 
     currentIndex = projectIds.indexOf(id);
+
+    const videoWrapper = document.querySelector('.responsive-video-wrapper');
+    const modalDialog = document.querySelector('.modal-dialog');
+
+    if (data.isVertical) {
+      if (videoWrapper) videoWrapper.classList.add('is-vertical');
+      if (modalDialog) modalDialog.classList.add('modal-vertical');
+    } else {
+      if (videoWrapper) videoWrapper.classList.remove('is-vertical');
+      if (modalDialog) modalDialog.classList.remove('modal-vertical');
+    }
 
     if (modalVideoIframe) {
       modalVideoIframe.src = data.embedUrl;
@@ -271,6 +300,10 @@ function initProjectModal() {
     if (modalVideoIframe) {
       modalVideoIframe.src = '';
     }
+    const videoWrapper = document.querySelector('.responsive-video-wrapper');
+    const modalDialog = document.querySelector('.modal-dialog');
+    if (videoWrapper) videoWrapper.classList.remove('is-vertical');
+    if (modalDialog) modalDialog.classList.remove('modal-vertical');
   }
 
   // Click & Enter key event triggers on cards
@@ -289,12 +322,44 @@ function initProjectModal() {
     });
   });
 
-  // Hero Reel Play Buttons (Defaulting to featured Spokes Digital campaign)
-  if (playReelBtn) {
-    playReelBtn.addEventListener('click', () => openModal('project-1'));
+  // Hero 9:16 Inline Video Player
+  function playHeroShortInline() {
+    if (!heroPlayerWrapper) return;
+    heroPlayerWrapper.innerHTML = `
+      <iframe 
+        class="hero-shorts-iframe" 
+        src="https://www.youtube-nocookie.com/embed/gQ494GhoXJI?autoplay=1&rel=0&modestbranding=1" 
+        title="Adarsh Panday — Master Motion Design & Video Editing Showreel" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+      </iframe>
+    `;
+    heroPlayerWrapper.style.cursor = 'default';
   }
+
   if (heroPlayTrigger) {
-    heroPlayTrigger.addEventListener('click', () => openModal('project-1'));
+    heroPlayTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playHeroShortInline();
+    });
+  }
+
+  if (heroPlayerWrapper) {
+    heroPlayerWrapper.addEventListener('click', () => {
+      playHeroShortInline();
+    });
+    heroPlayerWrapper.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        playHeroShortInline();
+      }
+    });
+  }
+
+  // Hero Reel Play Button in CTA: Opens Showreel Modal
+  if (playReelBtn) {
+    playReelBtn.addEventListener('click', () => openModal('showreel'));
   }
 
   // Modal Inquire Button: close modal and navigate to contact form
