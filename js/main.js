@@ -462,29 +462,102 @@ function initContactForm() {
 
     if (!isValid) return;
 
+    // Collect active chips & budget
+    const selectedServices = [];
+    serviceChips.forEach(chip => {
+      if (chip.classList.contains('active')) {
+        selectedServices.push(chip.getAttribute('data-service') || chip.textContent.trim());
+      }
+    });
+
+    let selectedBudget = '₹15k – ₹40k';
+    const activeBudgetPill = document.querySelector('#budgetPills .budget-pill.active');
+    if (activeBudgetPill) {
+      selectedBudget = activeBudgetPill.getAttribute('data-budget') || activeBudgetPill.textContent.trim();
+    }
+
     const originalBtnHTML = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = `<span>Sending...</span>`;
 
-    setTimeout(() => {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalBtnHTML;
-      const firstName = nameInput.value.trim().split(' ')[0];
-      form.reset();
+    const accessKeyInput = document.getElementById('formAccessKey');
+    const accessKey = accessKeyInput ? accessKeyInput.value.trim() : '';
 
-      // Reset chips & pills to default state
+    // If an Access Key (Web3Forms) is provided, send real API POST request
+    if (accessKey && accessKey !== 'YOUR_ACCESS_KEY_HERE') {
+      const formData = new FormData(form);
+      formData.append('services', selectedServices.join(', '));
+      formData.append('budget', selectedBudget);
+
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHTML;
+
+        if (data.success) {
+          const firstName = nameInput.value.trim().split(' ')[0];
+          form.reset();
+          resetPillsAndChips();
+          showToast(
+            `Message Delivered, ${firstName}!`,
+            `Your project inquiry has been sent straight to Adarsh's personal inbox.`
+          );
+        } else {
+          fallbackMailto();
+        }
+      })
+      .catch(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHTML;
+        fallbackMailto();
+      });
+    } else {
+      // Fallback: Open pre-formatted email directly to adarshanilpanday@gmail.com
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHTML;
+        fallbackMailto();
+      }, 500);
+    }
+
+    function fallbackMailto() {
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const msg = messageInput.value.trim();
+      const servicesStr = selectedServices.join(', ') || 'Video Editing';
+
+      const subject = encodeURIComponent(`Project Inquiry: ${servicesStr} from ${name}`);
+      const body = encodeURIComponent(
+        `Hi Adarsh,\n\n` +
+        `Name: ${name}\n` +
+        `Email: ${email}\n` +
+        `Requirement: ${servicesStr}\n` +
+        `Estimated Budget: ${selectedBudget}\n\n` +
+        `Project Brief:\n${msg}\n\n` +
+        `Sent via Portfolio Contact Form`
+      );
+
+      // Open email composer directly
+      window.location.href = `mailto:adarshanilpanday@gmail.com?subject=${subject}&body=${body}`;
+
+      showToast(
+        `Opening Your Email Client...`,
+        `Your message details are pre-filled for adarshanilpanday@gmail.com. Simply click Send!`
+      );
+    }
+
+    function resetPillsAndChips() {
       serviceChips.forEach((chip, idx) => {
         chip.classList.toggle('active', idx === 0);
       });
       budgetPills.forEach((pill, idx) => {
         pill.classList.toggle('active', idx === 1);
       });
-
-      showToast(
-        `Message Sent, ${firstName}!`,
-        `Thank you for reaching out. I will review your brief and reply promptly.`
-      );
-    }, 700);
+    }
   });
 
   function showToast(title, msg) {
